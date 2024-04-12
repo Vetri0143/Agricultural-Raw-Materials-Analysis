@@ -1,0 +1,59 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Updated dataset for leafy vegetables
+leafy_vegetables_dict = {
+    'year': [2018, 2018, 2018, 2018, 2018, 2018, 2018, 2018, 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2019, 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020],
+    'vegetable': ['Spinach', 'Lettuce', 'Kale', 'Arugula', 'Collard Greens', 'Swiss Chard', 'Bok Choy', 'Romaine', 'Spinach', 'Lettuce', 'Kale', 'Arugula', 'Collard Greens', 'Swiss Chard', 'Bok Choy', 'Romaine', 'Spinach', 'Lettuce', 'Kale', 'Arugula', 'Collard Greens', 'Swiss Chard', 'Bok Choy', 'Romaine'],
+    'price': [2.5, 3.0, 2.8, 3.2, 2.7, 3.5, 2.9, 3.1, 2.4, 2.8, 3.2, 3.1, 2.6, 3.6, 3.0, 3.3, 2.3, 2.9, 3.3, 3.5, 2.8, 3.2, 3.0, 3.4],
+    'quantity_sold': [500, 700, 400, 600, 450, 550, 300, 800, 550, 750, 420, 650, 500, 600, 350, 850, 600, 800, 500, 700, 450, 550, 320, 900]
+}
+
+# Convert the dictionary to a DataFrame
+data = pd.DataFrame(leafy_vegetables_dict)
+
+# Update the prices of Kale for 2019 and 2020
+data.loc[(data['vegetable'] == 'Kale') & (data['year'].isin([2019, 2020])), 'price'] = [3.3, 3.6]
+
+# Exploratory Data Analysis (EDA)
+print("Data Head:")
+print(data.head())
+print("\nSummary Statistics:")
+print(data.describe())
+
+# Identify High-Range and Low-Range Vegetables
+high_range_vegetables = data.nlargest(10, 'price')
+low_range_vegetables = data.nsmallest(10, 'price')
+
+# Calculate High and Low Percentage Change in Price
+data['price_change'] = data.groupby('vegetable')['price'].pct_change() * 100
+high_pct_change_vegetables = data.nlargest(10, 'price_change')
+low_pct_change_vegetables = data.nsmallest(10, 'price_change')
+
+# Analyze Price Change Over Years
+price_change_over_years = data.groupby('year')['price'].agg(['min', 'max'])
+price_change_over_years['price_range'] = price_change_over_years['max'] - price_change_over_years['min']
+
+# Correlation Analysis (excluding non-numeric columns)
+correlation_matrix = data.drop(columns=['vegetable']).corr()
+
+# Display results interactively
+print("\nHigh-Range Vegetables:")
+print(high_range_vegetables)
+print("\nLow-Range Vegetables:")
+print(low_range_vegetables)
+print("\nHigh Percentage Change Vegetables:")
+print(high_pct_change_vegetables)
+print("\nLow Percentage Change Vegetables:")
+print(low_pct_change_vegetables)
+print("\nPrice Change Over Years:")
+print(price_change_over_years)
+print("\nCorrelation Matrix:")
+print(correlation_matrix)
+
+# Plot heatmap for correlation matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Matrix')
+plt.show()
